@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="lib/commons-dbutils-fox-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.5.jar"/>
+	<classpathentry kind="lib" path="lib/foxjc-service-file-monitor.jar"/>
+	<classpathentry kind="lib" path="lib/h2-1.4.195.jar"/>
+	<classpathentry kind="lib" path="lib/jnotify-foxjc-0.94.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="lib/mzlion-core-1.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/okhttp-3.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/okio-1.13.0.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/spring-context-3.2.8.RELEASE.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
