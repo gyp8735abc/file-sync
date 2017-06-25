@@ -48,10 +48,10 @@ public class FileDeletedAction implements RequestHandler{
 				FileUtils.deleteDirectory(file);
 			}
 			
-			FileSyncLog.info("ACTION: %s->%s删除文件%s", fromGroupNo, group.getGroupNo(), filePath);
+			FileSyncLog.info("%s[ACTION]: 响应%s删除文件%s", toGroupNo, fromGroupNo, filePath);
 			response.writeMessage("Y");
 		} catch (Exception e) {
-			FileSyncLog.error(e, "ACTION: %s->%s删除文件异常: %s", fromGroupNo, group.getGroupNo(), file.getAbsolutePath());
+			FileSyncLog.error(e, "%s[ACTION]: 响应%s删除文件异常: %s", toGroupNo, fromGroupNo, file.getAbsolutePath());
 			response.writeMessage("N");
 		} finally {
 			FileEventHandler.removeInhibitionEvent(fileModifiyEvent);

@@ -14,7 +14,7 @@ public class MemberOfflineAction implements RequestHandler{
 		String toGroupNo = request.getParamter("toGroupNo");
 		//更新member的状态
 		FileManagerDao.updateGroupMemberOfflineStatus(toGroupNo, fromGroupNo);
-		FileSyncLog.info("发现%s离綫", fromGroupNo);
+		FileSyncLog.info("%s[ACTION]: 发现%s离綫", toGroupNo, fromGroupNo);
 		response.writeMessage("Y");
 	}
 }

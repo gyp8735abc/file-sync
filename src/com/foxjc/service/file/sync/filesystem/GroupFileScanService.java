@@ -47,32 +47,32 @@ public class GroupFileScanService {
 					try {
 						recordFileInfo(group, file);
 					} catch (Exception e) {
-						FileSyncLog.error(e, "扫描文件%s异常", file.getAbsolutePath());
+						FileSyncLog.error(e, "%s: 扫描文件%s异常", group.getGroupNo(), file.getAbsolutePath());
 					}
 				}
 				long e = System.currentTimeMillis();
-				FileSyncLog.info("扫描组'%s'共计%d文件，耗时%d毫秒", group.getGroupName(), fileCount, e - s);
+				FileSyncLog.info("%s: 扫描%s文件夹，共计%d文件，耗时%d毫秒", group.getGroupNo(), dir.getAbsolutePath(), fileCount, e - s);
 				int delFileCount = FileManagerDao.removeAllDeletedFileInfo();
-				if(delFileCount > 0)FileSyncLog.info("删除无效文件信息group=%s,removeAllDeletedFileInfo=%s个", group.getGroupNo(), delFileCount);
+				if(delFileCount > 0)FileSyncLog.info("%s: 删除无效文件信息removeAllDeletedFileInfo=%s个", group.getGroupNo(), delFileCount);
 				int delLockedFileCount = FileManagerDao.removeAllLockedFileInfo();
-				if(delLockedFileCount > 0)FileSyncLog.info("删除无效文件信息group=%s,removeAllLockedFileInfo=%s个", group.getGroupNo(), delLockedFileCount);
+				if(delLockedFileCount > 0)FileSyncLog.info("%s: 删除无效文件信息removeAllLockedFileInfo=%s个", group.getGroupNo(), delLockedFileCount);
 				int distinctCount = FileManagerDao.distinctFileInfo(group);
-				if(distinctCount > 0)FileSyncLog.info("删除重复文件信息group=%s,distinctFileInfo=%s个", group.getGroupNo(), distinctCount);
+				if(distinctCount > 0)FileSyncLog.info("%s: 删除重复文件信息distinctFileInfo=%s个", group.getGroupNo(), distinctCount);
 				
 				//协调双方对比服务
+				int delay = RandomUtils.nextInt(200, 1000);
 				try {
-					Thread.sleep(RandomUtils.nextInt(200, 1000));
+					Thread.sleep(delay);
 				} catch (InterruptedException e1) {
-					e1.printStackTrace();
+					FileSyncLog.debug("%s: 延迟等待%s毫秒执行文件对比服务异常", group.getGroupNo(), delay);
 				}
 				FileManagerDao.updateGroupReady(group);
 				CompareGroupFileTask.startCompareGroupAllMember(group);
 			}
 		});
-		scanFileThread.setDaemon(true);
 		scanFileThread.setName(String.format("scan-group-%s-file-thread", group.getGroupNo()));
 		scanFileThread.start();
-		FileSyncLog.info("启动线程扫描group=%s的%s文件列表", group.getGroupNo(), group.getPath());
+		FileSyncLog.info("%s: 启动线程扫描%s文件列表", group.getGroupNo(), group.getPath());
 	}
 	private  static void recordFileInfo(GroupInfo group, File file) {
 		long fileLength = file.length();

@@ -38,7 +38,7 @@ public class FileEventHandler {
 		if(hasInhibitionEvent(event)){
 			if(FileSyncLog.isDebug()){
 				String fileGroupPath = FileInfoUtils.differencePath(event.getGroup().getPath(), FilenameUtils.normalize(event.getFile().getAbsolutePath(), true));
-				FileSyncLog.debug("阻止事件group=%s,file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
+				FileSyncLog.debug("%s: 阻止事件file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
 			}
 			return;
 		}
@@ -60,7 +60,7 @@ public class FileEventHandler {
 		if(hasInhibitionEvent(event)){
 			if(FileSyncLog.isDebug()){
 				String fileGroupPath = FileInfoUtils.differencePath(event.getGroup().getPath(), FilenameUtils.normalize(event.getFile().getAbsolutePath(), true));
-				FileSyncLog.debug("阻止事件group=%s,file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
+				FileSyncLog.debug("%s: 阻止事件file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
 			}
 			return;
 		}
@@ -112,7 +112,7 @@ public class FileEventHandler {
 						if(hasInhibitionEvent(event)){
 							if(FileSyncLog.isDebug()){
 								String fileGroupPath = FileInfoUtils.differencePath(event.getGroup().getPath(), FilenameUtils.normalize(event.getFile().getAbsolutePath(), true));
-								FileSyncLog.debug("阻止事件group=%s,file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
+								FileSyncLog.debug("%s: 阻止事件file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
 							}
 							continue;
 						}
@@ -130,14 +130,14 @@ public class FileEventHandler {
 					if(hasInhibitionEvent(event)){
 						if(FileSyncLog.isDebug()){
 							String fileGroupPath = FileInfoUtils.differencePath(event.getGroup().getPath(), FilenameUtils.normalize(event.getFile().getAbsolutePath(), true));
-							FileSyncLog.debug("阻止事件group=%s,file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
+							FileSyncLog.debug("%s: 阻止事件file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
 						}
 						continue;
 					}
 					String filePath = FilenameUtils.normalize(event.getFile().getAbsolutePath(), true);
 					String fileGroupPath = FileInfoUtils.differencePath(event.getGroup().getPath(), filePath);
 					FileManagerDao.addFileNotSyncLogForAllMember(event.getGroup(), fileGroupPath, event.getEventType());
-					FileSyncLog.info("保存group=%s, file=%s, event=%s到数据库", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
+					FileSyncLog.info("%s: 保存file=%s, event=%s到数据库", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
 				}
 			}
 		});
@@ -159,7 +159,7 @@ public class FileEventHandler {
 	public static void addInhibitionEvent(FileEvent event){
 		if(FileSyncLog.isDebug()){
 			String fileGroupPath = FileInfoUtils.differencePath(event.getGroup().getPath(), FilenameUtils.normalize(event.getFile().getAbsolutePath(), true));
-			FileSyncLog.debug("新增抑制事件group=%s,file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
+			FileSyncLog.debug("%s: 新增抑制事件file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
 		}
 		inhibitionEvent.add(event);
 	}
@@ -181,7 +181,7 @@ public class FileEventHandler {
 			inhibitionEvent.remove(event);
 			if(FileSyncLog.isDebug()){
 				String fileGroupPath = FileInfoUtils.differencePath(event.getGroup().getPath(), FilenameUtils.normalize(event.getFile().getAbsolutePath(), true));
-				FileSyncLog.debug("移除抑制事件group=%s,file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
+				FileSyncLog.debug("%s: 移除抑制事件file=%s,event=%s", event.getGroup().getGroupNo(), fileGroupPath, event.getEventType());
 			}
 		}
 	}
@@ -195,7 +195,7 @@ public class FileEventHandler {
 			//所有抑制事件，如果超过1分钟，则清除抑制事件
 			if(System.currentTimeMillis() - e.getRecordTime().getTime() > 1000*60){
 				inhibitionEvent.remove(i--);
-				FileSyncLog.debug("清除过期抑制事件group=%s,event=%s,time=%s,file=%s", e.getGroup().getGroupNo(), e.getEventType(), DateFormatUtils.format(e.getRecordTime(), "yyyy-MM-dd HH:mm:ss"), e.getFile().getAbsolutePath());
+				FileSyncLog.debug("%s: 清除过期抑制事件event=%s,time=%s,file=%s", e.getGroup().getGroupNo(), e.getEventType(), DateFormatUtils.format(e.getRecordTime(), "yyyy-MM-dd HH:mm:ss"), e.getFile().getAbsolutePath());
 				continue;
 			}
 		}

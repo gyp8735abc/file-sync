@@ -84,7 +84,7 @@ public class FileDeleteEvent implements FileEvent {
 			final MemberInfo member = members.get(i);
 			if (!StringUtils.equals(member.getOnline(), "Y")){
 				FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
-				FileSyncLog.debug("EVENT: %s->%s删除文件%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
+				FileSyncLog.debug("%s[EVENT]: 通知%s删除文件%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
 				continue;
 			}
 
@@ -103,16 +103,16 @@ public class FileDeleteEvent implements FileEvent {
 				public void onResponse(Call call, Response response) throws IOException {
 					String result = response.body().string();
 					if("Y".equals(result)){
-						FileSyncLog.info("EVENT: %s->%s删除文件%s完成", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+						FileSyncLog.info("%s[EVENT]: 通知%s删除文件%s完成", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 					}else{
-						FileSyncLog.info("EVENT: %s->%s删除文件%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+						FileSyncLog.info("%s[EVENT]: 通知%s删除文件%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 						FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
 					}
 				}
 
 				@Override
 				public void onFailure(Call call, IOException e) {
-					FileSyncLog.error(e, "EVENT: %s->%s删除文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+					FileSyncLog.error(e, "%s[EVENT]: 通知%s删除文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 					FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
 				}
 			});

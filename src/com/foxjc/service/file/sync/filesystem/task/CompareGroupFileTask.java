@@ -52,6 +52,7 @@ public class CompareGroupFileTask {
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
+								FileSyncLog.debug("%s: 等待member%s就绪异常", group.getGroupNo(), member.getMemberNo());
 								return;
 							}
 							continue;
@@ -59,15 +60,17 @@ public class CompareGroupFileTask {
 						break;
 					}
 					if (localGroupReadyTime < memberReadyTime) {
-						FileSyncLog.info("文件对比服务group=%s,member=%s: ReadyTime小於member=%s，对比服务由member进行，%s终止对比", 
+						FileSyncLog.info("%s: %s的ReadyTime=%s小於member=%s[ReadyTime=%s]，对比服务由member进行，%s终止对比", 
 								group.getGroupNo(), 
+								group.getGroupNo(), 
+								localGroupReadyTime,
 								member.getMemberNo(),
-								member.getMemberNo(),
+								memberReadyTime,
 								group.getGroupNo());
 						return;
 					}
 					synchronized (group) {
-						FileSyncLog.info("文件对比服务group=%s,member=%s: 文件对比服务开始...", group.getGroupNo(), member.getMemberNo());
+						FileSyncLog.info("%s: 和%s对比文件服务开始...", group.getGroupNo(), member.getMemberNo());
 						FileManagerDao.lockAllFileInfo(group);
 						HttpServiceUtils.noticeMemberEvent(group, member, "compareStart");
 						while (!Thread.interrupted()) {
@@ -77,7 +80,7 @@ public class CompareGroupFileTask {
 							}
 							break;
 						}
-						FileSyncLog.info("文件对比服务group=%s,member=%s: 文件对比服务结束", group.getGroupNo(), member.getMemberNo());
+						FileSyncLog.info("%s: 和%s对比文件服务结束", group.getGroupNo(), member.getMemberNo());
 						HttpServiceUtils.noticeMemberEvent(group, member, "compareEnd");
 					}
 					groupCompareThreads.remove(compareThreadKey);
@@ -124,10 +127,10 @@ public class CompareGroupFileTask {
 					FileManagerDao.unlockFileInfo(fileInfo);
 				}
 			}
-			FileSyncLog.debug("文件对比服务group=%s,member=%s: 完成%s笔文件对比请求", group.getGroupNo(), member.getMemberNo(), list.size());
+			FileSyncLog.debug("%s: 和%s对比文件，完成%s笔文件对比请求", group.getGroupNo(), member.getMemberNo(), list.size());
 			return list.size();
 		} catch (Exception e) {
-			FileSyncLog.error(e, "文件对比服务group=%s,member=%s: 文件对比任务异常", group.getGroupNo(), member.getMemberNo());
+			FileSyncLog.error(e, "%s: 和%s对比文件任务异常", group.getGroupNo(), member.getMemberNo());
 		} finally {
 			// IoUtils.close(conn);
 		}

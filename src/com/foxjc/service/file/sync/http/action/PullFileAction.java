@@ -34,14 +34,14 @@ public class PullFileAction implements RequestHandler {
 
 			GroupInfo group = FileManagerDao.getGroupInfoByNo(toGroupNo);
 			if (group == null) {
-				FileSyncLog.error("没有找到叫%s的Group，无法同步文件", toGroupNo);
+				FileSyncLog.error("%s[ACTION]: 没有找到叫%s的Group，无法同步文件", toGroupNo, toGroupNo);
 				response.writeMessage(500, "需要抽取文件的组" + toGroupNo + "不存在");
 				return;
 			}
 			String basePath = group.getPath();
 			File file = new File(basePath + filePath);
 			if (!file.exists()) {
-				FileSyncLog.error("没有找到叫%s的Group，无法同步文件", toGroupNo);
+				FileSyncLog.error("%s[ACTION]: 响应%s，file=%s不存在，无法同步文件", toGroupNo, fromGroupNo, file.getAbsolutePath());
 				response.writeMessage(500, String.format("组%s文件%s没有找到", fromGroupNo, filePath));
 				return;
 			}
@@ -66,7 +66,7 @@ public class PullFileAction implements RequestHandler {
 				source.readAll(sink);
 				sink.flush();
 			} catch (Exception e) {
-				FileSyncLog.error(e, "%s->%s抽取文件异常: %s", fromGroupNo, group.getGroupNo(), file.getAbsolutePath());
+				FileSyncLog.error(e, "%s[ACTION]: 响应%s抽取文件%s异常", toGroupNo, fromGroupNo, file.getAbsolutePath());
 				response.writeMessage(500, "抽取文件异常: "+e.getMessage());
 			} finally {
 				IoUtils.close(source);

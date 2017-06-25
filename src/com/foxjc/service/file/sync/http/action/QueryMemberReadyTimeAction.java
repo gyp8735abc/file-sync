@@ -22,7 +22,7 @@ public class QueryMemberReadyTimeAction implements RequestHandler {
 		try {
 			final GroupInfo group = FileManagerDao.getGroupInfoByNo(toGroupNo);
 			if (group == null) {
-				FileSyncLog.error("没有找到叫%s的Group，无法获取MemberReadyTime", toGroupNo);
+				FileSyncLog.error("%s[ACTION]: 没有找到叫%s的Group，无法获取MemberReadyTime", toGroupNo, toGroupNo);
 				response.writeMessage("ERROR");
 				return;
 			}
@@ -30,7 +30,7 @@ public class QueryMemberReadyTimeAction implements RequestHandler {
 			response.writeMessage(Long.toString(time));
 		} catch (Exception e) {
 			response.writeMessage("ERROR");
-			FileSyncLog.error(e, "ACTION: %s->%s获取MemberReadyTime异常: %s", fromGroupNo, toGroupNo);
+			FileSyncLog.error(e, "%s[ACTION]: 响应%s获取MemberReadyTime异常: %s", toGroupNo, fromGroupNo, e.getMessage());
 		}
 	}
 

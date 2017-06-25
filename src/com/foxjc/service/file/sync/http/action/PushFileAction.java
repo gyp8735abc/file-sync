@@ -42,7 +42,7 @@ public class PushFileAction implements RequestHandler {
 
 		GroupInfo group = FileManagerDao.getGroupInfoByNo(toGroupNo);
 		if(group == null){
-			FileSyncLog.error("没有找到叫%s的Group，无法同步文件", toGroupNo);
+			FileSyncLog.error("%s[ACTION]: 没有找到叫%s的Group，无法同步文件", toGroupNo, toGroupNo);
 			response.writeMessage("ERROR");
 			return;
 		}
@@ -73,10 +73,10 @@ public class PushFileAction implements RequestHandler {
 			sink = Okio.buffer(Okio.sink(file));
 			source = Okio.buffer(Okio.source(request.getRequestBody()));
 			source.readAll(sink);
-			FileSyncLog.info("同步文件%s->%s同步文件%s, 最后更新时间：%tc", fromGroupNo, group.getGroupNo(), filePath, new Date(lastModifyTime));
+			FileSyncLog.info("%s[ACTION]: 响应%s同步文件%s", toGroupNo, fromGroupNo, filePath);
 			response.writeMessage("Y");
 		} catch (Exception e) {
-			FileSyncLog.error(e, "%s->%s同步文件异常: %s", fromGroupNo, group.getGroupNo(), file.getAbsolutePath());
+			FileSyncLog.error(e, "%s[ACTION]: 响应%s同步文件%s异常", toGroupNo, fromGroupNo, file.getAbsolutePath());
 			response.writeMessage("ERROR");
 		} finally {
 			IoUtils.close(sink);

@@ -1,7 +1,6 @@
 ﻿package com.foxjc.service.file.sync.http.action;
 
 import java.io.File;
-import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -64,12 +63,12 @@ public class FileCreatedAction implements RequestHandler{
 			if(!file.exists() && isFile){
 				FileUtils.touch(file);
 				file.setLastModified(lastModifyTime);
-				FileSyncLog.info("ACTION: %s->%s新建文件%s, 最后更新时间：%tc", fromGroupNo, group.getGroupNo(), filePath, new Date(lastModifyTime));
+				FileSyncLog.info("%s[ACTION]: 响应%s新建文件%s", toGroupNo, fromGroupNo, filePath);
 			}
 			
 			response.writeMessage("Y");
 		} catch (Exception e) {
-			FileSyncLog.error(e, "ACTION: %s->%s建立文件异常: %s", fromGroupNo, group.getGroupNo(), file.getAbsolutePath());
+			FileSyncLog.error(e, "%s[ACTION]: 响应%s新建文件异常: %s", toGroupNo, fromGroupNo, file.getAbsolutePath());
 			response.writeMessage("N");
 		} finally {
 			FileEventHandler.removeInhibitionEvent(fileCreateEvent);

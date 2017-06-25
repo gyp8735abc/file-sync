@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.h2.tools.Server;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.foxjc.service.file.sync.FileSyncConfig;
 import com.foxjc.service.file.sync.FileSyncLog;
 import com.foxjc.service.file.sync.filesystem.IoUtils;
@@ -36,16 +36,9 @@ import com.foxjc.service.file.sync.filesystem.IoUtils;
  */
 public class H2Utils {
 
-	static {
-		try {
-			Class.forName("org.h2.Driver");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	private static QueryRunner run = new QueryRunner(true);
-	private static Connection conn;
 	private static Server server;
+	private static DruidDataSource ds;
 	private static String url;
 
 	public static void init() {
@@ -56,48 +49,51 @@ public class H2Utils {
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}
-		url = String.format("jdbc:h2:tcp://%s:%s/%s/foxjcRsync;AUTO_RECONNECT=TRUE",//;DB_CLOSE_ON_EXIT=FALSE
-				FileSyncConfig.localIp,
-				FileSyncConfig.dbPort,
+		url = String.format("jdbc:h2:tcp://%s:%s/%s/foxjcRsync;AUTO_RECONNECT=TRUE", // ;DB_CLOSE_ON_EXIT=FALSE
+				FileSyncConfig.localIp, FileSyncConfig.dbPort,
 				FilenameUtils.normalizeNoEndSeparator(dir.getAbsolutePath(), true));
 		FileSyncLog.info("H2DB-URL=%s", url);
-		Connection conn = null;
-		try {
-			conn = DriverManager.getConnection(url, "sa", "");
-		} catch (Exception e1) {
+
+		if (server != null) {
+			server.stop();
+			server = null;
 		}
-		try {
-			if (conn == null) {
-				FileSyncLog.info("本机未发现H2服务，准备建立H2数据库服务");
-				server = Server.createTcpServer("-tcpPort", Integer.toString(FileSyncConfig.dbPort), "-tcpAllowOthers").start();
-				conn = DriverManager.getConnection(url, "sa", "");
-				conn.close();
+		if (server == null) {
+			FileSyncLog.info("本机未发现H2服务，准备建立H2数据库服务");
+			try {
+				server = Server.createTcpServer("-tcpPort", Integer.toString(FileSyncConfig.dbPort), "-tcpAllowOthers")
+						.start();
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
 			}
-		} catch (SQLException e) {
+		}
+
+		if (ds != null) {
+			ds.close();
+		}
+		ds = new DruidDataSource();
+		ds.setDriverClassName("org.h2.Driver");
+		ds.setUrl(url);
+		ds.setUsername("sa");
+		ds.setPassword("");
+		try {
+			ds.init();
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		FileSyncLog.info("创建h2数据库连接");
-	}
 
-	public static Connection getConnection() {
-		if(conn != null)return conn;
-		try {
-			conn = DriverManager.getConnection(url, "sa", "");
-		} catch (Exception e) {
-			throw new RuntimeException("获取数据库连接异常", e);
-		}
-		return conn;
+		FileSyncLog.info("创建h2数据库连接池完成");
 	}
 
 	public static <T> T queryBean(String sql, Class<T> clz, Object... params) {
 		Connection conn = null;
 		try {
-			conn = getConnection();
+			conn = ds.getConnection();
 			return run.query(conn, sql, new BeanHandler<T>(clz), handlerSqlParam(params));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			//IoUtils.close(conn);
+			IoUtils.close(conn);
 		}
 	}
 
@@ -108,24 +104,24 @@ public class H2Utils {
 	public static <T> List<T> queryBeanList(String sql, Class<T> clz, Object... params) {
 		Connection conn = null;
 		try {
-			conn = getConnection();
+			conn = ds.getConnection();
 			return run.query(conn, sql, new BeanListHandler<T>(clz), handlerSqlParam(params));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			//IoUtils.close(conn);
+			IoUtils.close(conn);
 		}
 	}
 
 	public static List<String> queryStringList(String sql, Object... params) {
 		Connection conn = null;
 		try {
-			conn = getConnection();
+			conn = ds.getConnection();
 			return run.query(conn, sql, new ColumnListHandler<String>(1), handlerSqlParam(params));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			//IoUtils.close(conn);
+			IoUtils.close(conn);
 		}
 	}
 
@@ -144,7 +140,7 @@ public class H2Utils {
 				throw new RuntimeException("转换数字异常", e);
 			}
 		} else {
-			throw new RuntimeException("未知的结果类型：" + obj);
+			throw new RuntimeException("未知的结果类型: " + obj);
 		}
 	}
 
@@ -191,31 +187,31 @@ public class H2Utils {
 	public static Object queryScalarObject(String sql, Object... params) {
 		Connection conn = null;
 		try {
-			conn = getConnection();
+			conn = ds.getConnection();
 			return run.query(conn, sql, new ScalarHandler<Object>(), handlerSqlParam(params));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			//IoUtils.close(conn);
+			IoUtils.close(conn);
 		}
 	}
 
 	public static int update(String sql, Object... params) {
 		Connection conn = null;
 		try {
-			conn = getConnection();
+			conn = ds.getConnection();
 			return run.update(conn, sql, handlerSqlParam(params));
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			//IoUtils.close(conn);
+			IoUtils.close(conn);
 		}
 	}
 
 	public static int[] batch(String sql, Object[][] params) {
 		Connection conn = null;
 		try {
-			conn = getConnection();
+			conn = ds.getConnection();
 			for (int i = 0; i < params.length; i++) {
 				params[i] = handlerSqlParam(params[i]);
 			}
@@ -223,7 +219,7 @@ public class H2Utils {
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
-			//IoUtils.close(conn);
+			IoUtils.close(conn);
 		}
 	}
 
@@ -238,7 +234,7 @@ public class H2Utils {
 		PreparedStatement pst = null;
 		Connection conn = null;
 		try {
-			conn = getConnection();
+			conn = ds.getConnection();
 			pst = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 			run.fillStatement(pst, handlerSqlParam(params));
 			int i = pst.executeUpdate();
@@ -259,12 +255,16 @@ public class H2Utils {
 			throw new RuntimeException(e);
 		} finally {
 			IoUtils.close(pst);
-			//IoUtils.close(conn);
+			IoUtils.close(conn);
 		}
 	}
 
 	public static void stop() {
 		try {
+			if (ds != null) {
+				ds.close();
+				ds = null;
+			}
 			server.stop();
 			FileSyncLog.info("数据库连接断开");
 		} catch (Exception e) {

@@ -104,7 +104,7 @@ public class FileRenameEvent implements FileEvent{
 			final MemberInfo member = members.get(i);
 			if (!StringUtils.equals(member.getOnline(), "Y")){
 				FileManagerDao.addFileNotSyncLog(group, member, String.format("%s->%s", oldFilePath, newFilePath), eventType);
-				FileSyncLog.debug("EVENT: %s->%s重命名文件%s->%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
+				FileSyncLog.debug("%s[EVENT]: 通知%s重命名文件%s->%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
 				continue;
 			}
 			
@@ -125,16 +125,16 @@ public class FileRenameEvent implements FileEvent{
 				public void onResponse(Call call, Response response) throws IOException {
 					String result = response.body().string();
 					if("Y".equals(result)){
-						FileSyncLog.info("EVENT: %s->%s重命名文件%s->%s完成", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
+						FileSyncLog.info("%s[EVENT]: 通知%s重命名文件%s->%s完成", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
 					}else{
-						FileSyncLog.info("EVENT: %s->%s重命名文件%s->%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
+						FileSyncLog.info("%s[EVENT]: 通知%s重命名文件%s->%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
 						FileManagerDao.addFileNotSyncLog(group, member, String.format("%s->%s", oldFileGroupPath, newFileGroupPath), eventType);
 					}
 				}
 
 				@Override
 				public void onFailure(Call call, IOException e) {
-					FileSyncLog.error(e, "EVENT: %s->%s重命名文件%s->%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
+					FileSyncLog.error(e, "%s[EVENT]: 通知%s重命名文件%s->%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), oldFileGroupPath, newFileGroupPath);
 					FileManagerDao.addFileNotSyncLog(group, member, String.format("%s->%s", oldFileGroupPath, newFileGroupPath), eventType);
 				}
 			});

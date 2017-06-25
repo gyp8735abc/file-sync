@@ -31,12 +31,12 @@ public class ScanMemberOnlineTask implements Runnable{
 						member.setOnline("Y");
 						FileManagerDao.updateGroupMemberOnlineStatus(group.getGroupNo(), member.getMemberNo());
 						CompareGroupFileTask.startCompareGroup(group, member);
-						FileSyncLog.info("group=%s, member=%s上线", group.getGroupNo(), member.getMemberNo());
+						FileSyncLog.info("%s: member=%s上线", group.getGroupNo(), member.getMemberNo());
 					}
 				}else if("Y".equals(member.getOnline())){
 					member.setOnline("N");
 					FileManagerDao.updateGroupMemberOfflineStatus(group.getGroupNo(), member.getMemberNo());
-					FileSyncLog.info("group=%s, member=%s离綫", group.getGroupNo(), member.getMemberNo());
+					FileSyncLog.info("%s: member=%s离綫", group.getGroupNo(), member.getMemberNo());
 					CompareGroupFileTask.interruptCompareGroup(group, member);
 				}
 			}

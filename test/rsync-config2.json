@@ -2,18 +2,18 @@
 	serverName : "foxjc-file-sync",
 	charsetEncodingName : "UTF-8",
 	localIp : "127.0.0.1",
-	dbPort : 9095,
-	httpPort : 8051,
+	dbPort : 9096,
+	httpPort : 8052,
 	maxRequest : 200,
-	dbFilePath : "C:/db1",
+	dbFilePath : "C:/db2",
 	initThreadPoolSize : 4,
 	maxThreadPoolSize : 64,
 	debug: true,
 
 	groups : [{
-		groupId : "test1",
+		groupId : "test2",
 		group : "test",
-		path : "C:/test1",
-		members : ["127.0.0.1:8052@test2"]
+		path : "C:/test2",
+		members : ["127.0.0.1:8051@test1"]
 	}]
 }

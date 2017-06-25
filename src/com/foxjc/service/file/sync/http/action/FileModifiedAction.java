@@ -88,10 +88,10 @@ public class FileModifiedAction implements RequestHandler {
 				// 在创建文件时，已生成文件记录，但是md5码是空，现在需要更新文件信息
 				FileManagerDao.updateFileMd5(fileInfo.getId(), md5, fileLength, lastModifyTime);
 			}
-			FileSyncLog.info("ACTION: %s->%s修改文件%s, 最后更新时间：%tc", fromGroupNo, group.getGroupNo(), filePath, new Date(lastModifyTime));
+			FileSyncLog.info("%s[ACTION]: 响应%s修改文件%s, 最后更新时间: %tc", toGroupNo, fromGroupNo, filePath, new Date(lastModifyTime));
 			response.writeMessage("Y");
 		} catch (IOException e) {
-			FileSyncLog.error(e, "ACTION: %s->%s修改文件异常: %s", fromGroupNo, group.getGroupNo(), file.getAbsolutePath());
+			FileSyncLog.error(e, "%s[ACTION]: 响应%s修改文件异常: %s", toGroupNo, fromGroupNo, file.getAbsolutePath());
 			response.writeMessage("N");
 		} finally {
 			IoUtils.close(is);

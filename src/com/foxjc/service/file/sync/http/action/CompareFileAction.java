@@ -35,13 +35,13 @@ public class CompareFileAction implements RequestHandler {
 		try {
 			final GroupInfo group = FileManagerDao.getGroupInfoByNo(toGroupNo);
 			if (group == null) {
-				FileSyncLog.error("没有找到叫%s的Group，无法同步文件", toGroupNo);
+				FileSyncLog.error("%s[ACTION]: 无法找到叫%s的Group，无法同步文件", toGroupNo, toGroupNo);
 				response.writeMessage("ERROR");
 				return;
 			}
 			final MemberInfo fromMember = FileManagerDao.getGroupMember(group, fromGroupNo);
 			if (fromMember == null) {
-				FileSyncLog.error("group=%s,没有找到叫%s的member，无法同步文件", group.getGroupNo(), fromGroupNo);
+				FileSyncLog.error("%s[ACTION]: 无法找到叫%s的member，无法同步文件", toGroupNo, fromGroupNo);
 				response.writeMessage("ERROR");
 				return;
 			}
@@ -76,7 +76,7 @@ public class CompareFileAction implements RequestHandler {
 			}
 		} catch (Exception e) {
 			response.writeMessage("ERROR");
-			FileSyncLog.error(e, "ACTION: %s->%s对比文件异常: %s", fromGroupNo, toGroupNo, filePath);
+			FileSyncLog.error(e, "%s[ACTION]: 处理%s的对比文件请求异常: %s", toGroupNo, fromGroupNo, filePath);
 		}
 	}
 

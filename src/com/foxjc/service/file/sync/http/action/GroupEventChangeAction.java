@@ -41,14 +41,14 @@ public class GroupEventChangeAction implements RequestHandler {
 			response.writeMessage("Y");
 		} catch (Exception e) {
 			response.writeMessage("ERROR");
-			FileSyncLog.error(e, "ACTION: %s->%s文件组事件变更通知异常: %s", fromGroupNo, toGroupNo);
+			FileSyncLog.error(e, "%s[ACTION]: 响应%s文件组事件变更通知异常: %s", toGroupNo, fromGroupNo, e.getMessage());
 		}
 	}
 	
 	public void startCompareLocalUnlockFile(final GroupInfo group, final MemberInfo member){
 		Thread t = new Thread(new Runnable() {
 			public void run() {
-				FileSyncLog.info("文件对比服务group=%s,member=%s: 文件对比服务开始...", group.getGroupNo(), member.getMemberNo());
+				FileSyncLog.info("%s: 和%s文件对比服务开始...", group.getGroupNo(), member.getMemberNo());
 				while (!Thread.interrupted()) {
 					if (syncTop50File(group, member) > 0) {
 						// 有一方为准备好，继续等待
@@ -56,7 +56,7 @@ public class GroupEventChangeAction implements RequestHandler {
 					}
 					break;
 				}
-				FileSyncLog.info("文件对比服务group=%s,member=%s: 文件对比服务结束", group.getGroupNo(), member.getMemberNo());
+				FileSyncLog.info("%s: 和%s文件对比服务结束", group.getGroupNo(), member.getMemberNo());
 			}
 		});
 		t.setDaemon(true);
@@ -79,10 +79,10 @@ public class GroupEventChangeAction implements RequestHandler {
 					FileManagerDao.unlockFileInfo(fileInfo);
 				}
 			}
-			FileSyncLog.debug("文件对比服务group=%s,member=%s: 完成%s笔文件对比请求", group.getGroupNo(), member.getMemberNo(), list.size());
+			FileSyncLog.debug("%s: 和%s完成%s笔文件对比请求", group.getGroupNo(), member.getMemberNo(), list.size());
 			return list.size();
 		} catch (Exception e) {
-			FileSyncLog.error(e, "文件对比服务group=%s,member=%s: 文件对比任务异常", group.getGroupNo(), member.getMemberNo());
+			FileSyncLog.error(e, "%s: 和%s文件对比任务异常", group.getGroupNo(), member.getMemberNo());
 		} finally {
 			// IoUtils.close(conn);
 		}

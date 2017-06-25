@@ -51,7 +51,7 @@ public class FileRenamedAction implements RequestHandler{
 			if(oldFile.isDirectory()){
 				//文件夹重命名
 				oldFile.renameTo(newFile);
-				FileSyncLog.info("ACTION: %s->%s重命名文件%s->%s", fromGroupNo, group.getGroupNo(), oldFilePath, newFilePath);
+				FileSyncLog.info("%s[ACTION]: 响应%s重命名文件%s->%s", toGroupNo, fromGroupNo, oldFilePath, newFilePath);
 				response.writeMessage("Y");
 				return;
 			}
@@ -64,7 +64,7 @@ public class FileRenamedAction implements RequestHandler{
 			oldFile.renameTo(newFile);
 			oldFile.setLastModified(lastModifyTime);
 
-			FileSyncLog.info("ACTION: %s->%s重命名文件%s->%s", fromGroupNo, group.getGroupNo(), oldFilePath, newFilePath);
+			FileSyncLog.info("%s[ACTION]: 响应%s重命名文件%s->%s", toGroupNo, fromGroupNo, oldFilePath, newFilePath);
 			response.writeMessage("Y");
 		} catch (Exception e) {
 			FileEventHandler.removeInhibitionEvent(fileRenameEvent);
@@ -72,7 +72,7 @@ public class FileRenamedAction implements RequestHandler{
 			FileEventHandler.removeInhibitionEvent(fileModifiyEvent1);
 			FileEventHandler.removeInhibitionEvent(fileModifiyEvent2);
 			FileEventHandler.removeInhibitionEvent(fileDeleteEvent);
-			FileSyncLog.error(e, "ACTION: %s->%s重命名文件异常: %s", fromGroupNo, group.getGroupNo(), oldFile.getAbsolutePath());
+			FileSyncLog.error(e, "%s[ACTION]: 响应%s重命名文件异常: %s", toGroupNo, fromGroupNo, oldFile.getAbsolutePath());
 			response.writeMessage("N");
 		}
 	}

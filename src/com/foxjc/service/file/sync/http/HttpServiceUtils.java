@@ -45,7 +45,7 @@ public class HttpServiceUtils {
 				return StringUtils.isNumeric(result) ? NumberUtils.toLong(result, -1) : -1;
 			}
 		} catch (Exception e) {
-			FileSyncLog.info("获取MemberReadyTime异常: %s", e.getMessage());
+			FileSyncLog.info("%s: 获取%s的MemberReadyTime异常: %s", group.getGroupNo(), member.getMemberNo(), e.getMessage());
 		}
 		return -1;
 	}
@@ -64,20 +64,24 @@ public class HttpServiceUtils {
 				return true;
 			}
 		} catch (Exception e) {
-			FileSyncLog.info("member上线通知异常: %s", e.getMessage());
+			FileSyncLog.debug("%s: 通知%s上线通知异常: %s", group.getGroupNo(), member.getMemberNo(), e.getMessage());
 		}
 		return false;
 	}
 
 	public static void noticeMemberOffline(GroupInfo group, MemberInfo member) {
+		if(!"Y".equals(member.getOnline()))return;
 		Map<String, String> params = new HashMap<String, String>();
 		String url = String.format("http://%s:%d/rsync/memberOffline", member.getIp(), member.getPort());
 		params.put("ip", FileSyncConfig.localIp);
 		params.put("port", Integer.toString(FileSyncConfig.httpPort));
 		params.put("fromGroupNo", group.getGroupNo());
 		params.put("toGroupNo", member.getMemberNo());
-		HttpClient.post(url, params);
-
+		try {
+			HttpClient.post(url, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static boolean compareFile(final GroupInfo group, final MemberInfo member, final FileInfo fileInfo, boolean unlockFile) {
@@ -87,7 +91,7 @@ public class HttpServiceUtils {
 		final String filePath = fileInfo.getPath();
 
 		if (!FileManagerDao.isMemberOnline(member)) {
-			FileSyncLog.debug("对比文件: group=%s,member=%s,file=%s member不在线，跳出此次对比", group.getGroupNo(), member.getMemberNo(), filePath);
+			FileSyncLog.debug("%s: 和%s对比文件file=%s，member=%s不在线，跳出此次对比", group.getGroupNo(), member.getMemberNo(), filePath, member.getMemberNo());
 			return false;
 		}
 
@@ -109,25 +113,25 @@ public class HttpServiceUtils {
 			public void onResponse(Call call, Response response) throws IOException {
 				String result = response.body().string();
 				if (StringUtils.equals(result, "NONE")) {// 相同
-					FileSyncLog.debug("对比文件: group=%s,member=%s,file=%s 无需同步", group.getGroupNo(), member.getMemberNo(), filePath);
+					FileSyncLog.debug("%s: 和%s对比文件file=%s 无需同步", group.getGroupNo(), member.getMemberNo(), filePath);
 				} else if (StringUtils.equals(result, "PULL")) {// 远端较新，远端会同步文件到本地，此处无需处理
-					FileSyncLog.debug("对比文件: group=%s,member=%s,file=%s PULL文件", group.getGroupNo(), member.getMemberNo(), filePath);
+					FileSyncLog.debug("%s: 和%s对比文件file=%s PULL文件", group.getGroupNo(), member.getMemberNo(), filePath);
 					pullFile(group, member, fileInfo);
 				} else if (StringUtils.equals(result, "PUSH")) {// 本地较新，需同步到服务器上
-					FileSyncLog.debug("对比文件: group=%s,member=%s,file=%s PUSH文件", group.getGroupNo(), member.getMemberNo(), filePath);
+					FileSyncLog.debug("%s: 和%s对比文件file=%s PUSH文件", group.getGroupNo(), member.getMemberNo(), filePath);
 					pushFile(group, member, fileInfo);
 				} else if (StringUtils.equals(result, "ERROR")) {// 本地较新，需同步到服务器上
-					FileSyncLog.info("对比文件: group=%s,member=%s,file=%s 返回异常，稍後同步", group.getGroupNo(), member.getMemberNo(), filePath);
+					FileSyncLog.info("%s: 和%s对比文件file=%s 返回异常，稍後同步", group.getGroupNo(), member.getMemberNo(), filePath);
 					// 加入後续对比
 					FileManagerDao.addFileNotSyncLogForAllMember(group, filePath, FileChangeType.MODIFY);
 				} else {
-					FileSyncLog.debug("对比文件: group=%s,member=%s,file=%s 未知返回%s", group.getGroupNo(), member.getMemberNo(), filePath, result);
+					FileSyncLog.debug("%s: 和%s对比文件file=%s 未知返回%s", group.getGroupNo(), member.getMemberNo(), filePath, result);
 				}
 			}
 
 			@Override
 			public void onFailure(Call call, IOException e) {
-				FileSyncLog.error(e, "对比文件异常：%s->%s，file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
+				FileSyncLog.error(e, "%s: 和%s对比文件异常: file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
 			}
 		});
 		return true;
@@ -164,22 +168,22 @@ public class HttpServiceUtils {
 				public void onResponse(Call call, Response response) throws IOException {
 					String result = response.body().string();
 					if ("Y".equals(result)) {
-						FileSyncLog.info("上传文件完成：%s->%s，file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
+						FileSyncLog.info("%s: 向%s推送文件完成: file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
 					} else {
 						FileManagerDao.addFileNotSyncLog(group, member, filePath, FileChangeType.MODIFY);
-						FileSyncLog.info("上传文件失败：%s->%s，file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
+						FileSyncLog.info("%s: 向%s推送文件失败: file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
 					}
 				}
 
 				@Override
 				public void onFailure(Call call, IOException e) {
 					FileManagerDao.addFileNotSyncLog(group, member, filePath, FileChangeType.MODIFY);
-					FileSyncLog.error(e, "上传文件异常：%s->%s，file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
+					FileSyncLog.error(e, "%s: 向%s推送文件异常: file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
 				}
 			});
 		} catch (Exception e) {
 			FileManagerDao.addFileNotSyncLog(group, member, filePath, FileChangeType.MODIFY);
-			FileSyncLog.error(e, "上传文件异常：%s->%s，file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
+			FileSyncLog.error(e, "%s: 向%s推送文件异常: file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
 		}
 	}
 
@@ -219,9 +223,9 @@ public class HttpServiceUtils {
 					source.readAll(sink);
 
 					// 文件同步完成，需要更新文件信息
-					FileSyncLog.info("抽取文件完成：group=%s,file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
+					FileSyncLog.info("%s: 从%s抽取文件完成: file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
 				} catch (Exception e) {
-					FileSyncLog.error(e, "抽取文件异常：group=%s,file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
+					FileSyncLog.error(e, "%s: 从%s抽取文件异常: file=%s", group.getGroupNo(), member.getMemberNo(), filePath);
 				} finally {
 					IOUtils.closeQuietly(source);
 					IOUtils.closeQuietly(sink);
@@ -235,7 +239,7 @@ public class HttpServiceUtils {
 			@Override
 			public void onFailure(Call call, IOException e) {
 				FileManagerDao.addFileNotSyncLog(group, member, filePath, FileChangeType.MODIFY);
-				FileSyncLog.error(e, "抽取文件异常：%s->%s，file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
+				FileSyncLog.error(e, "%s: 从%s抽取文件异常: file=%s，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
 			}
 		});
 	}
@@ -253,12 +257,12 @@ public class HttpServiceUtils {
 			@Override
 			public void onResponse(Call call, Response response) throws IOException {
 				String result = response.body().string();
-				FileSyncLog.debug("%s->%s通知memberEvent=%s完成: %s", group.getGroupNo(), member.getMemberNo(), eventType, result);
+				FileSyncLog.debug("%s: 通知%s，memberEvent=%s完成: %s", group.getGroupNo(), member.getMemberNo(), eventType, result);
 			}
 			
 			@Override
 			public void onFailure(Call call, IOException e) {
-				FileSyncLog.info("获取MemberReadyTime异常: %s", e.getMessage());
+				FileSyncLog.info("%s: 通知%s，memberEvent=%s异常: %s", group.getGroupNo(), member.getMemberNo(), eventType, e.getMessage());
 			}
 		});
 	}

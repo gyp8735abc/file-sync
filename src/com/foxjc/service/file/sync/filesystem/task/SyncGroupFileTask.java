@@ -48,7 +48,7 @@ public class SyncGroupFileTask implements Runnable {
 					GroupInfo group = FileManagerDao.getGroupInfoById(member.getGroupId());
 					FileInfo fileInfo = FileManagerDao.getFileInfo(group, filePath);
 					if ("N".equals(member.getOnline())) {
-						FileSyncLog.debug("文件同步终止 group=%s, member=%s不在线，稍後重试", group.getGroupNo(), member.getMemberNo());
+						FileSyncLog.debug("%s: 文件同步终止member=%s不在线，稍後重试", group.getGroupNo(), member.getMemberNo());
 						continue;
 					}
 					File file = new File(group.getPath() + filePath);
@@ -60,7 +60,7 @@ public class SyncGroupFileTask implements Runnable {
 							fileInfo = FileManagerDao.addFileInfo(group, filePath, md5, file.length(), file.lastModified());
 						} else {
 							// 如果需要同步的文件不存在了，则删除文件同步信息
-							FileSyncLog.debug("文件信息 group=%s, file=%s不存在，终止文件同步", group.getGroupNo(), filePath);
+							FileSyncLog.debug("%s: 文件信息file=%s不存在，终止文件同步", group.getGroupNo(), filePath);
 							// TO DO 有需要同步的事件，说明原文件存在，现不存在了，说明後来被删除，所以此种情况等同於删除文件
 							eventType = FileChangeType.DELETE.getValue();
 						}
@@ -77,7 +77,7 @@ public class SyncGroupFileTask implements Runnable {
 							}
 						} else {
 							FileManagerDao.markDeleteFileInfo(fileInfo);
-							FileSyncLog.debug("文件信息 group=%s, file=%s不存在，终止文件同步", group.getGroupNo(), filePath);
+							FileSyncLog.debug("%s: 文件信息file=%s不存在，终止文件同步", group.getGroupNo(), filePath);
 							// TO DO 未实现@文件信息存在，现文件被删除了，则需要比对两边的文件进行同步文件
 							eventType = FileChangeType.DELETE.getValue();
 						}

@@ -36,7 +36,7 @@ public class FileChangeNotifyCallback implements JNotifyListener {
 	@Override
 	public void fileDeleted(int wd, String rootPath, String name) {
 		File file = FileInfoUtils.getFile(rootPath, name);
-		FileSyncLog.debug("FileChangeNotify组%s删除文件%s", group.getGroupNo(), file.getAbsolutePath());
+		FileSyncLog.debug("%s[Notify]: 删除文件%s", group.getGroupNo(), file.getAbsolutePath());
 		FileDeleteEvent event = new FileDeleteEvent(group, file);
 		FileEventHandler.push(event);
 	}
@@ -49,7 +49,7 @@ public class FileChangeNotifyCallback implements JNotifyListener {
 	public void fileModified(int wd, String rootPath, String name) {
 		File file = FileInfoUtils.getFile(rootPath, name);
 		if(file.isDirectory())return;
-		FileSyncLog.debug("FileChangeNotify组%s修改文件%s", group.getGroupNo(), file.getAbsolutePath());
+		FileSyncLog.debug("%s[Notify]: 修改文件%s", group.getGroupNo(), file.getAbsolutePath());
 		FileModifiyEvent event = new FileModifiyEvent(group, file);
 		FileEventHandler.push(event, 1000);
 	}
@@ -58,11 +58,11 @@ public class FileChangeNotifyCallback implements JNotifyListener {
 	public void fileRenamed(int wd, String rootPath, String oldName, String newName) {
 		File oldFile = FileInfoUtils.getFile(rootPath, oldName);
 		File newFile = FileInfoUtils.getFile(rootPath, newName);
-		FileSyncLog.debug("FileChangeNotify组%s重命名文件%s->%s", group.getGroupNo(), oldFile.getAbsolutePath(), newFile.getAbsolutePath());
+		FileSyncLog.debug("%s[Notify]: 重命名文件%s->%s", group.getGroupNo(), oldFile.getAbsolutePath(), newFile.getAbsolutePath());
 		if(oldName == null || "null".equals(oldName)){
 			FileCreateEvent event = new FileCreateEvent(group, newFile);
 			FileEventHandler.push(event);
-			FileSyncLog.debug("%dRename,源文件为空，直接同步文件%s", wd, newFile.getAbsolutePath());
+			FileSyncLog.debug("%s[Notify]: 重命名文件,源文件为空，直接同步文件%s", group.getGroupNo(), newFile.getAbsolutePath());
 			if(newFile.length() > 0){
 				FileModifiyEvent modifyFileEvent = new FileModifiyEvent(group, newFile);
 				FileEventHandler.push(modifyFileEvent);

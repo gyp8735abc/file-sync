@@ -9,13 +9,17 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/fastjson-1.2.5.jar"/>
 	<classpathentry kind="lib" path="lib/foxjc-service-file-monitor.jar"/>
-	<classpathentry kind="lib" path="lib/h2-1.4.195.jar"/>
 	<classpathentry kind="lib" path="lib/jnotify-foxjc-0.94.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/mzlion-core-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/okhttp-3.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/okio-1.13.0.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/spring-context-3.2.8.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2-api-2.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-api-2.8.2.jar" sourcepath="C:/Users/Administrator/.m2/repository/org/apache/logging/log4j/log4j-api/2.8.2/log4j-api-2.8.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-core-2.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-slf4j-impl-2.8.2.jar"/>
+	<classpathentry kind="lib" path="lib/druid-1.0.29.jar" sourcepath="C:/Users/Administrator/.m2/repository/com/alibaba/druid/1.0.29/druid-1.0.29-sources.jar"/>
+	<classpathentry kind="lib" path="lib/h2-1.4.196.jar" sourcepath="C:/Users/Administrator/Desktop/java/h2-2017-06-10.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

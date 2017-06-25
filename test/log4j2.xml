@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appenders>
+		<console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="sync[%p %d{yyyy-MM-dd HH:mm:ss}]%l - %m%n" />
+		</console>
+	</appenders>
+
+	<loggers>
+		<logger name="file-sync" level="debug">
+		</logger>
+		<root level="all">
+			<appender-ref ref="Console" />
+		</root>
+	</loggers>
+</configuration>

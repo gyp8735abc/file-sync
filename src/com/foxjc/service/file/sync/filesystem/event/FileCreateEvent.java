@@ -72,7 +72,7 @@ public class FileCreateEvent implements FileEvent {
 		String md5 = null;
 
 		if (!file.exists()) {
-			FileSyncLog.info("文件%s不存在，无法执行fileCreated操作", filePath);
+			FileSyncLog.info("%s[EVENT]: 文件%s不存在，无法执行fileCreated操作", group.getGroupNo(), filePath);
 			return;
 		}
 		final String fileGroupPath = FileInfoUtils.differencePath(group.getPath(), filePath);
@@ -90,7 +90,7 @@ public class FileCreateEvent implements FileEvent {
 			final MemberInfo member = members.get(i);
 			if (!StringUtils.equals(member.getOnline(), "Y")){
 				FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
-				FileSyncLog.debug("EVENT: %s->%s新建文件%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
+				FileSyncLog.debug("%s[EVENT]: 通知%s新建文件%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
 				continue;
 			}
 
@@ -111,16 +111,16 @@ public class FileCreateEvent implements FileEvent {
 				public void onResponse(Call call, Response response) throws IOException {
 					String result = response.body().string();
 					if("Y".equals(result)){
-						FileSyncLog.info("EVENT: %s->%s新建文件%s完成", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+						FileSyncLog.info("%s[EVENT]: 通知%s新建文件%s完成", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 					}else{
-						FileSyncLog.info("EVENT: %s->%s新建文件%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+						FileSyncLog.info("%s[EVENT]: 通知%s新建文件%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 						FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
 					}
 				}
 
 				@Override
 				public void onFailure(Call call, IOException e) {
-					FileSyncLog.error(e, "EVENT: %s->%s新建文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+					FileSyncLog.error(e, "%s[EVENT]: 通知%s新建文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 					FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
 				}
 			});

@@ -75,7 +75,7 @@ public class FileModifiyEvent implements FileEvent{
 		final String fileGroupPath = FileInfoUtils.differencePath(group.getPath(), filePath);
 		if(!file.exists() || file.length() == 0){
 			FileManagerDao.addFileNotSyncLogForAllMember(group, fileGroupPath, eventType);
-			FileSyncLog.debug("EVENT: %s修改文件%s，文件大小为0，添加到未同步文件池", group.getGroupNo(), filePath);
+			FileSyncLog.debug("%s[EVENT]: 修改文件%s，文件大小为0，添加到未同步文件池", group.getGroupNo(), filePath);
 			return ;
 		}
 		FileInfo fileInfo = FileManagerDao.getFileInfo(group, fileGroupPath);
@@ -86,7 +86,7 @@ public class FileModifiyEvent implements FileEvent{
 			md5 = file.isFile()?FileMd5Utils.getFileMD5(file):null;
 			if(md5 == null)md5 = "";
 		} catch (Exception e1) {
-			FileSyncLog.info("%s文件%s修改通知：获取md5异常，文件可能被占用，同步文件服务取消，1秒後执行文件对比服务", group.getGroupNo(), filePath);
+			FileSyncLog.info("%s[EVENT]: 文件%s修改通知: 获取md5异常，文件可能被占用，同步文件服务取消，添加到未同步文件池", group.getGroupNo(), filePath);
 			FileManagerDao.addFileNotSyncLogForAllMember(group, fileGroupPath, eventType);
 			return;
 		}
@@ -104,7 +104,7 @@ public class FileModifiyEvent implements FileEvent{
 			final MemberInfo member = members.get(i);
 			if (!StringUtils.equals(member.getOnline(), "Y")){
 				FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
-				FileSyncLog.debug("EVENT: %s->%s修改文件%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
+				FileSyncLog.debug("%s[EVENT]: 通知%s修改文件%s，member不在线，添加到未同步文件池", group.getGroupNo(), member.getMemberNo(), filePath);
 				continue;
 			}
 			
@@ -127,21 +127,21 @@ public class FileModifiyEvent implements FileEvent{
 					public void onResponse(Call call, Response response) throws IOException {
 						String result = response.body().string();
 						if("Y".equals(result)){
-							FileSyncLog.info("EVENT: %s->%s修改文件%s完成", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+							FileSyncLog.info("%s[EVENT]: 通知%s修改文件%s完成", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 						}else{
-							FileSyncLog.info("EVENT: %s->%s修改文件%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+							FileSyncLog.info("%s[EVENT]: 通知%s修改文件%s返回异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 							FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
 						}
 					}
 
 					@Override
 					public void onFailure(Call call, IOException e) {
-						FileSyncLog.error(e, "EVENT: %s->%s修改文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+						FileSyncLog.error(e, "%s[EVENT]: 通知%s修改文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 						FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
 					}
 				});
 			} catch (Exception e) {
-				FileSyncLog.error(e, "EVENT: %s->%s修改文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
+				FileSyncLog.error(e, "%s[EVENT]: 通知%s修改文件%s异常，稍後重试", group.getGroupNo(), member.getMemberNo(), fileGroupPath);
 				FileManagerDao.addFileNotSyncLog(group, member, fileGroupPath, eventType);
 			}
 		}
